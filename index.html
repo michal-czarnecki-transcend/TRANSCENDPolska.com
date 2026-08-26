@@ -3,39 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raporty Tygodniowe - TRANSCEND Polska</title>
+    <title>TRANSCEND Polska</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="language-switcher">
-                <button class="lang-btn" data-lang="en" title="English">🇬🇧</button>
-                <button class="lang-btn active" data-lang="pl" title="Polski">🇵🇱</button>
-            </div>
-            <h1 id="page-title">📄 Raporty Tygodniowe</h1>
-            <p id="page-subtitle">TRANSCEND Polska - Archiwalne Raporty</p>
-        </header>
+    <!-- Navigation Bar -->
+    <nav>
+        <button class="logo-btn" onclick="goHome()" title="TRANSCEND Polska">
+            <img src="logo.png" alt="TRANSCEND Polska">
+        </button>
+        
+        <div class="nav-buttons">
+            <a href="#" class="nav-btn" onclick="showPage('about')"><span class="pl-text">O Transcend</span><span class="en-text" style="display:none;">About Transcend</span></a>
+            <a href="#" class="nav-btn active" onclick="showPage('reports')"><span class="pl-text">Raporty</span><span class="en-text" style="display:none;">Reports</span></a>
+            <a href="#" class="nav-btn" onclick="showPage('programs')"><span class="pl-text">Programy</span><span class="en-text" style="display:none;">Programs</span></a>
+            <a href="#" class="nav-btn" onclick="showPage('shop')"><span class="pl-text">Sklep</span><span class="en-text" style="display:none;">Shop</span></a>
+        </div>
 
-        <main>
-            <div class="content-wrapper">
-                <!-- PDF Viewer Section -->
-                <div class="pdf-viewer-section">
-                    <div id="pdf-container">
-                        <p class="placeholder" id="placeholder-text">Wybierz raport, aby go wyświetlić</p>
+        <div class="language-switcher">
+            <button class="lang-btn active" data-lang="pl" onclick="setLanguage('pl')" title="Polski">🇵🇱</button>
+            <button class="lang-btn" data-lang="en" onclick="setLanguage('en')" title="English">🇬🇧</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home-page" style="display:none;">
+            <header>
+                <h1 class="pl-text">📺 TRANSCEND Polska</h1>
+                <h1 class="en-text" style="display:none;">📺 TRANSCEND Polska</h1>
+                <p class="pl-text">Odkrywaj nowe perspektywy</p>
+                <p class="en-text" style="display:none;">Discover New Perspectives</p>
+            </header>
+
+            <main>
+                <div class="main-content">
+                    <h2 class="pl-text">Najnowsze Wideo</h2>
+                    <h2 class="en-text" style="display:none;">Latest Videos</h2>
+                    <div id="videos-container" class="videos-grid">
+                        <p class="loading pl-text">Ładowanie wideo...</p>
+                        <p class="loading en-text" style="display:none;">Loading videos...</p>
                     </div>
                 </div>
+            </main>
+        </div>
 
-                <!-- Reports List Section -->
-                <aside class="reports-list">
-                    <h2 id="reports-heading">Wszystkie Raporty</h2>
-                    <div id="reports-list" class="reports">
-                        <p class="loading" id="loading-text">Ładowanie raportów...</p>
+        <!-- About Page -->
+        <div id="about-page" style="display:none;">
+            <header>
+                <h1 class="pl-text">O Transcend</h1>
+                <h1 class="en-text" style="display:none;">About Transcend</h1>
+            </header>
+
+            <main>
+                <div class="main-content">
+                    <p class="pl-text">Treść strony "O Transcend" będzie dodana wkrótce.</p>
+                    <p class="en-text" style="display:none;">The "About Transcend" page content will be added soon.</p>
+                </div>
+            </main>
+        </div>
+
+        <!-- Reports Page -->
+        <div id="reports-page">
+            <header>
+                <h1 class="pl-text">📄 Raporty Tygodniowe</h1>
+                <h1 class="en-text" style="display:none;">📄 Weekly Reports</h1>
+                <p class="pl-text">TRANSCEND Polska - Archiwalne Raporty</p>
+                <p class="en-text" style="display:none;">TRANSCEND Polska - Archived Reports</p>
+            </header>
+
+            <main>
+                <div class="content-wrapper">
+                    <div class="pdf-viewer-section">
+                        <div id="pdf-container">
+                            <p class="placeholder pl-text">Wybierz raport, aby go wyświetlić</p>
+                            <p class="placeholder en-text" style="display:none;">Select a report to view it here</p>
+                        </div>
                     </div>
-                </aside>
-            </div>
-        </main>
+
+                    <aside class="reports-list">
+                        <h2 class="pl-text">Wszystkie Raporty</h2>
+                        <h2 class="en-text" style="display:none;">Available Reports</h2>
+                        <div id="reports-list" class="reports">
+                            <p class="loading pl-text">Ładowanie raportów...</p>
+                            <p class="loading en-text" style="display:none;">Loading reports...</p>
+                        </div>
+                    </aside>
+                </div>
+            </main>
+        </div>
+
+        <!-- Programs Page -->
+        <div id="programs-page" style="display:none;">
+            <header>
+                <h1 class="pl-text">Programy</h1>
+                <h1 class="en-text" style="display:none;">Programs</h1>
+            </header>
+
+            <main>
+                <div class="main-content">
+                    <div class="programs-grid" id="programs-grid">
+                        <!-- Programs will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Shop Page -->
+        <div id="shop-page" style="display:none;">
+            <header>
+                <h1 class="pl-text">Sklep</h1>
+                <h1 class="en-text" style="display:none;">Shop</h1>
+            </header>
+
+            <main>
+                <div class="main-content">
+                    <div class="shop-grid" id="shop-grid">
+                        <!-- Shop items will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </main>
+        </div>
 
         <footer>
             <p>&copy; 2026 TRANSCEND Polska. All rights reserved.</p>
@@ -43,19 +132,8 @@
     </div>
 
     <script>
-        // Translations
+        // ===== TRANSLATIONS =====
         const translations = {
-            en: {
-                pageTitle: '📄 Weekly Reports',
-                pageSubtitle: 'TRANSCEND Polska - Archived Reports',
-                reportsHeading: 'Available Reports',
-                placeholderText: 'Select a report to view it here',
-                loadingText: 'Loading reports...',
-                noReportsText: 'No reports found yet. Check back soon!',
-                errorText: 'Error loading reports. Please try again.',
-                errorPdfText: 'Error loading PDF. It may be too large. Try downloading instead.',
-                downloadBtn: '⬇ Download'
-            },
             pl: {
                 pageTitle: '📄 Raporty Tygodniowe',
                 pageSubtitle: 'TRANSCEND Polska - Archiwalne Raporty',
@@ -66,18 +144,53 @@
                 errorText: 'Błąd podczas ładowania raportów. Spróbuj ponownie.',
                 errorPdfText: 'Błąd podczas ładowania PDF. Może być zbyt duży. Spróbuj pobrać zamiast tego.',
                 downloadBtn: '⬇ Pobierz'
+            },
+            en: {
+                pageTitle: '📄 Weekly Reports',
+                pageSubtitle: 'TRANSCEND Polska - Archived Reports',
+                reportsHeading: 'Available Reports',
+                placeholderText: 'Select a report to view it here',
+                loadingText: 'Loading reports...',
+                noReportsText: 'No reports found yet. Check back soon!',
+                errorText: 'Error loading reports. Please try again.',
+                errorPdfText: 'Error loading PDF. It may be too large. Try downloading instead.',
+                downloadBtn: '⬇ Download'
             }
         };
+
+        // ===== PROGRAMS DATA =====
+        const programs = {
+            pl: [
+                {
+                    title: 'Anomaliowanie',
+                    description: 'Marcin Mastalerz i Michał Czarnecki mapują Anomalie, czyli wyłamujące się ze schematów elementy rzeczywistości.'
+                },
+                {
+                    title: 'Szczyt',
+                    description: 'Michał Czarnecki prezentuje program, w którym różni goście pozwalają mu, na odkrycie jak działa świat. Tematyka specjalistyczna, artystyczna oraz humorystyczna.'
+                }
+            ],
+            en: [
+                {
+                    title: 'Anomaliowanie',
+                    description: 'Marcin Mastalerz and Michał Czarnecki map Anomalies - reality elements that break the patterns. '
+                },
+                {
+                    title: 'Szczyt',
+                    description: 'Michał Czarnecki presents a program where various guests allow him to discover how the world works. Specialist, artistic, and humorous topics.'
+                }
+            ]
+        };
+
+        // ===== SHOP DATA (empty for now) =====
+        const shopItems = [];
 
         let currentLanguage = 'pl';
         let currentPdf = null;
         let currentPage = 1;
         let totalPages = 0;
 
-        // Set up PDF.js worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-        // Language switching
+        // ===== LANGUAGE SWITCHING =====
         function setLanguage(lang) {
             currentLanguage = lang;
             localStorage.setItem('language', lang);
@@ -88,39 +201,153 @@
             });
             document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
             
-            // Update all text
-            updatePageText();
-            loadReports();
-        }
-
-        function updatePageText() {
-            const t = translations[currentLanguage];
-            document.getElementById('page-title').textContent = t.pageTitle;
-            document.getElementById('page-subtitle').textContent = t.pageSubtitle;
-            document.getElementById('reports-heading').textContent = t.reportsHeading;
-            document.getElementById('placeholder-text').textContent = t.placeholderText;
-            document.getElementById('loading-text').textContent = t.loadingText;
-            document.documentElement.lang = currentLanguage;
-        }
-
-        // Load language preference on page load
-        function loadLanguagePreference() {
-            const saved = localStorage.getItem('language') || 'pl';
-            setLanguage(saved);
-        }
-
-        // Language button event listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    setLanguage(btn.dataset.lang);
-                });
+            // Update all text elements
+            document.querySelectorAll('.pl-text, .en-text').forEach(el => {
+                if (el.classList.contains('pl-text')) {
+                    el.style.display = lang === 'pl' ? 'block' : 'none';
+                } else if (el.classList.contains('en-text')) {
+                    el.style.display = lang === 'en' ? 'block' : 'none';
+                }
             });
-        });
 
+            document.documentElement.lang = lang;
+            
+            // Reload current content with new language
+            const currentPage = document.querySelector('div[style*="display: block"]:not(nav):not(.container)');
+            if (currentPage && currentPage.id === 'reports-page') {
+                loadReports();
+            } else if (currentPage && currentPage.id === 'programs-page') {
+                renderPrograms();
+            }
+        }
+
+        // ===== PAGE NAVIGATION =====
+        function showPage(pageName) {
+            event.preventDefault();
+            
+            // Hide all pages
+            document.querySelectorAll('[id$="-page"]').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Show selected page
+            document.getElementById(pageName + '-page').style.display = 'block';
+            
+            // Update active nav button
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.nav-btn').classList.add('active');
+            
+            // Load page content
+            if (pageName === 'reports') {
+                loadReports();
+            } else if (pageName === 'programs') {
+                renderPrograms();
+            } else if (pageName === 'shop') {
+                renderShop();
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        function goHome() {
+            event.preventDefault();
+            document.querySelectorAll('[id$="-page"]').forEach(page => {
+                page.style.display = 'none';
+            });
+            document.getElementById('home-page').style.display = 'block';
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            loadYouTubeVideos();
+            window.scrollTo(0, 0);
+        }
+
+        // ===== YOUTUBE VIDEOS =====
+        async function loadYouTubeVideos() {
+            const container = document.getElementById('videos-container');
+            container.innerHTML = '';
+            
+            try {
+                // YouTube Channel: @TRANSCENDPolska
+                // Using YouTube Data API - requires API key
+                // For now, showing placeholder with manual video embedding capability
+                
+                const videoIds = [
+                    // Add your YouTube video IDs here
+                    // Format: 'dQw4w9WgXcQ'
+                ];
+
+                if (videoIds.length === 0) {
+                    container.innerHTML = `<p class="placeholder pl-text" style="grid-column: 1/-1;">Wideo będą dostępne wkrótce</p>
+                                          <p class="placeholder en-text" style="grid-column: 1/-1; display:none;">Videos will be available soon</p>`;
+                    return;
+                }
+
+                videoIds.forEach(videoId => {
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    card.innerHTML = `
+                        <iframe class="video-iframe" src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+                        <div class="video-title">Video</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                container.innerHTML = `<p class="error pl-text" style="grid-column: 1/-1;">Błąd ładowania wideo</p>
+                                      <p class="error en-text" style="grid-column: 1/-1; display:none;">Error loading videos</p>`;
+            }
+        }
+
+        // ===== PROGRAMS RENDERING =====
+        function renderPrograms() {
+            const grid = document.getElementById('programs-grid');
+            grid.innerHTML = '';
+            
+            const programList = programs[currentLanguage];
+            programList.forEach(program => {
+                const card = document.createElement('div');
+                card.className = 'program-card';
+                card.innerHTML = `
+                    <div class="program-image">
+                        <span class="${currentLanguage === 'pl' ? 'pl-text' : 'en-text'}">Brak zdjęcia</span>
+                    </div>
+                    <div class="program-title">${program.title}</div>
+                    <div class="program-description">${program.description}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ===== SHOP RENDERING =====
+        function renderShop() {
+            const grid = document.getElementById('shop-grid');
+            grid.innerHTML = '';
+            
+            if (shopItems.length === 0) {
+                grid.innerHTML = `<p class="placeholder pl-text" style="grid-column: 1/-1;">Sklep będzie dostępny wkrótce</p>
+                                 <p class="placeholder en-text" style="grid-column: 1/-1; display:none;">Shop will be available soon</p>`;
+                return;
+            }
+
+            shopItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'shop-item';
+                card.innerHTML = `
+                    <div class="shop-image">Brak zdjęcia</div>
+                    <div class="shop-content">
+                        <div class="shop-title">${item.title}</div>
+                        <div class="shop-description">${item.description}</div>
+                        <button class="buy-btn">${currentLanguage === 'pl' ? 'Kup teraz' : 'Buy Now'}</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ===== REPORTS FUNCTIONALITY (from old design) =====
         async function loadReports() {
             try {
-                // Fetch list of reports from the reports folder
                 const response = await fetch('https://api.github.com/repos/michal-czarnecki-transcend/michal-czarnecki-transcend.github.io/contents/reports');
                 const files = await response.json();
                 const t = translations[currentLanguage];
@@ -138,8 +365,7 @@
                 }
 
                 let html = '';
-                pdfFiles.forEach((file, index) => {
-                    const date = file.name.replace('report-', '').replace('.pdf', '');
+                pdfFiles.forEach((file) => {
                     html += `
                         <div class="report-item" onclick="openPdf('${file.download_url}', '${file.name}')">
                             <div class="report-title">${file.name.replace('.pdf', '')}</div>
@@ -152,7 +378,6 @@
 
                 document.getElementById('reports-list').innerHTML = html;
                 
-                // Auto-load the first report
                 if (pdfFiles.length > 0) {
                     openPdf(pdfFiles[0].download_url, pdfFiles[0].name);
                 }
@@ -168,13 +393,13 @@
                 const t = translations[currentLanguage];
                 document.getElementById('pdf-container').innerHTML = `<p class="loading">${t.loadingText}</p>`;
                 
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
                 const pdf = await pdfjsLib.getDocument(url).promise;
                 currentPdf = pdf;
                 totalPages = pdf.numPages;
                 currentPage = 1;
 
                 renderPage(1);
-                updatePageInfo();
             } catch (error) {
                 console.error('Error loading PDF:', error);
                 const t = translations[currentLanguage];
@@ -202,38 +427,18 @@
 
                 document.getElementById('pdf-container').innerHTML = '';
                 document.getElementById('pdf-container').appendChild(canvas);
-                updatePageInfo();
             } catch (error) {
                 console.error('Error rendering page:', error);
             }
         }
 
-        function updatePageInfo() {
-            // Page info could be added here if needed
-        }
-
-        function nextPage() {
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderPage(currentPage);
-            }
-        }
-
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderPage(currentPage);
-            }
-        }
-
-        // Load language preference and reports when page loads
-        document.addEventListener('DOMContentLoaded', loadLanguagePreference);
-
-        // Handle responsive design
-        window.addEventListener('resize', () => {
-            if (currentPdf) {
-                renderPage(currentPage);
-            }
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLanguage = localStorage.getItem('language') || 'pl';
+            setLanguage(savedLanguage);
+            
+            // Show home page by default
+            goHome();
         });
     </script>
 </body>
