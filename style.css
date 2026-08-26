@@ -37,11 +37,11 @@ nav {
     background: linear-gradient(135deg, #00a8cc 0%, #00d4ff 100%);
     padding: 15px 20px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     gap: 30px;
     z-index: 1000;
     box-shadow: 0 4px 6px rgba(0, 212, 255, 0.3);
+    min-height: 110px;
 }
 
 .logo-btn {
