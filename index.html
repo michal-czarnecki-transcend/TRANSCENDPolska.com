@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Reports - TRANSCEND Polska</title>
+    <title>Raporty Tygodniowe - TRANSCEND Polska</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -11,11 +11,11 @@
     <div class="container">
         <header>
             <div class="language-switcher">
-                <button class="lang-btn active" data-lang="en" title="English">🇬🇧</button>
-                <button class="lang-btn" data-lang="pl" title="Polski">🇵🇱</button>
+                <button class="lang-btn" data-lang="en" title="English">GB</button>
+                <button class="lang-btn active" data-lang="pl" title="Polski">PL</button>
             </div>
-            <h1 id="page-title">📄 Weekly Reports</h1>
-            <p id="page-subtitle">TRANSCEND Polska - Archived Reports</p>
+            <h1 id="page-title">📄 Raporty Tygodniowe</h1>
+            <p id="page-subtitle">TRANSCEND Polska - Archiwalne Raporty</p>
         </header>
 
         <main>
@@ -23,15 +23,15 @@
                 <!-- PDF Viewer Section -->
                 <div class="pdf-viewer-section">
                     <div id="pdf-container">
-                        <p class="placeholder" id="placeholder-text">Select a report to view it here</p>
+                        <p class="placeholder" id="placeholder-text">Wybierz raport, aby go wyświetlić</p>
                     </div>
                 </div>
 
                 <!-- Reports List Section -->
                 <aside class="reports-list">
-                    <h2 id="reports-heading">Available Reports</h2>
+                    <h2 id="reports-heading">Wszystkie Raporty</h2>
                     <div id="reports-list" class="reports">
-                        <p class="loading" id="loading-text">Loading reports...</p>
+                        <p class="loading" id="loading-text">Ładowanie raportów...</p>
                     </div>
                 </aside>
             </div>
@@ -69,7 +69,7 @@
             }
         };
 
-        let currentLanguage = 'en';
+        let currentLanguage = 'pl';
         let currentPdf = null;
         let currentPage = 1;
         let totalPages = 0;
@@ -100,11 +100,12 @@
             document.getElementById('reports-heading').textContent = t.reportsHeading;
             document.getElementById('placeholder-text').textContent = t.placeholderText;
             document.getElementById('loading-text').textContent = t.loadingText;
+            document.documentElement.lang = currentLanguage;
         }
 
         // Load language preference on page load
         function loadLanguagePreference() {
-            const saved = localStorage.getItem('language') || 'en';
+            const saved = localStorage.getItem('language') || 'pl';
             setLanguage(saved);
         }
 
