@@ -15,10 +15,14 @@
         </button>
         
         <div class="nav-buttons">
-            <a href="#" class="nav-btn" onclick="showPage('about')"><span class="pl-text">O Transcend</span><span class="en-text" style="display:none;">About Transcend</span></a>
-            <a href="#" class="nav-btn active" onclick="showPage('reports')"><span class="pl-text">Raporty</span><span class="en-text" style="display:none;">Reports</span></a>
-            <a href="#" class="nav-btn" onclick="showPage('programs')"><span class="pl-text">Programy</span><span class="en-text" style="display:none;">Programs</span></a>
-            <a href="#" class="nav-btn" onclick="showPage('shop')"><span class="pl-text">Sklep</span><span class="en-text" style="display:none;">Shop</span></a>
+            <div class="nav-left">
+                <button class="nav-btn" onclick="showPage('about')"><span class="pl-text">O Transcend</span><span class="en-text" style="display:none;">About Transcend</span></button>
+                <button class="nav-btn active" onclick="showPage('reports')"><span class="pl-text">Raporty</span><span class="en-text" style="display:none;">Reports</span></button>
+            </div>
+            <div class="nav-right">
+                <button class="nav-btn" onclick="showPage('programs')"><span class="pl-text">Programy</span><span class="en-text" style="display:none;">Programs</span></button>
+                <button class="nav-btn" onclick="showPage('shop')"><span class="pl-text">Sklep</span><span class="en-text" style="display:none;">Shop</span></button>
+            </div>
         </div>
 
         <div class="language-switcher">
@@ -213,10 +217,10 @@
             document.documentElement.lang = lang;
             
             // Reload current content with new language
-            const currentPage = document.querySelector('div[style*="display: block"]:not(nav):not(.container)');
-            if (currentPage && currentPage.id === 'reports-page') {
+            const currentPageDiv = Array.from(document.querySelectorAll('[id$="-page"]')).find(el => el.style.display !== 'none');
+            if (currentPageDiv && currentPageDiv.id === 'reports-page') {
                 loadReports();
-            } else if (currentPage && currentPage.id === 'programs-page') {
+            } else if (currentPageDiv && currentPageDiv.id === 'programs-page') {
                 renderPrograms();
             }
         }
