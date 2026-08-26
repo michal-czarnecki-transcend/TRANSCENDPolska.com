@@ -10,8 +10,12 @@
 <body>
     <div class="container">
         <header>
-            <h1>📄 Weekly Reports</h1>
-            <p>TRANSCEND Polska - Archived Reports</p>
+            <div class="language-switcher">
+                <button class="lang-btn active" data-lang="en" title="English">🇬🇧</button>
+                <button class="lang-btn" data-lang="pl" title="Polski">🇵🇱</button>
+            </div>
+            <h1 id="page-title">📄 Weekly Reports</h1>
+            <p id="page-subtitle">TRANSCEND Polska - Archived Reports</p>
         </header>
 
         <main>
@@ -19,15 +23,15 @@
                 <!-- PDF Viewer Section -->
                 <div class="pdf-viewer-section">
                     <div id="pdf-container">
-                        <p class="placeholder">Select a report to view it here</p>
+                        <p class="placeholder" id="placeholder-text">Select a report to view it here</p>
                     </div>
                 </div>
 
                 <!-- Reports List Section -->
                 <aside class="reports-list">
-                    <h2>Available Reports</h2>
+                    <h2 id="reports-heading">Available Reports</h2>
                     <div id="reports-list" class="reports">
-                        <p class="loading">Loading reports...</p>
+                        <p class="loading" id="loading-text">Loading reports...</p>
                     </div>
                 </aside>
             </div>
@@ -39,28 +43,96 @@
     </div>
 
     <script>
-        // Set up PDF.js worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        // Translations
+        const translations = {
+            en: {
+                pageTitle: '📄 Weekly Reports',
+                pageSubtitle: 'TRANSCEND Polska - Archived Reports',
+                reportsHeading: 'Available Reports',
+                placeholderText: 'Select a report to view it here',
+                loadingText: 'Loading reports...',
+                noReportsText: 'No reports found yet. Check back soon!',
+                errorText: 'Error loading reports. Please try again.',
+                errorPdfText: 'Error loading PDF. It may be too large. Try downloading instead.',
+                downloadBtn: '⬇ Download'
+            },
+            pl: {
+                pageTitle: '📄 Raporty Tygodniowe',
+                pageSubtitle: 'TRANSCEND Polska - Archiwalne Raporty',
+                reportsHeading: 'Wszystkie Raporty',
+                placeholderText: 'Wybierz raport, aby go wyświetlić',
+                loadingText: 'Ładowanie raportów...',
+                noReportsText: 'Nie znaleziono raportów. Wróć wkrótce!',
+                errorText: 'Błąd podczas ładowania raportów. Spróbuj ponownie.',
+                errorPdfText: 'Błąd podczas ładowania PDF. Może być zbyt duży. Spróbuj pobrać zamiast tego.',
+                downloadBtn: '⬇ Pobierz'
+            }
+        };
 
+        let currentLanguage = 'en';
         let currentPdf = null;
         let currentPage = 1;
         let totalPages = 0;
+
+        // Set up PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Language switching
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            
+            // Update all text
+            updatePageText();
+            loadReports();
+        }
+
+        function updatePageText() {
+            const t = translations[currentLanguage];
+            document.getElementById('page-title').textContent = t.pageTitle;
+            document.getElementById('page-subtitle').textContent = t.pageSubtitle;
+            document.getElementById('reports-heading').textContent = t.reportsHeading;
+            document.getElementById('placeholder-text').textContent = t.placeholderText;
+            document.getElementById('loading-text').textContent = t.loadingText;
+        }
+
+        // Load language preference on page load
+        function loadLanguagePreference() {
+            const saved = localStorage.getItem('language') || 'en';
+            setLanguage(saved);
+        }
+
+        // Language button event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setLanguage(btn.dataset.lang);
+                });
+            });
+        });
 
         async function loadReports() {
             try {
                 // Fetch list of reports from the reports folder
                 const response = await fetch('https://api.github.com/repos/michal-czarnecki-transcend/michal-czarnecki-transcend.github.io/contents/reports');
                 const files = await response.json();
+                const t = translations[currentLanguage];
                 
                 if (!Array.isArray(files)) {
-                    document.getElementById('reports-list').innerHTML = '<p class="no-reports">No reports found yet. Check back soon!</p>';
+                    document.getElementById('reports-list').innerHTML = `<p class="no-reports">${t.noReportsText}</p>`;
                     return;
                 }
 
                 const pdfFiles = files.filter(file => file.name.endsWith('.pdf')).sort((a, b) => b.name.localeCompare(a.name));
 
                 if (pdfFiles.length === 0) {
-                    document.getElementById('reports-list').innerHTML = '<p class="no-reports">No reports found yet. Check back soon!</p>';
+                    document.getElementById('reports-list').innerHTML = `<p class="no-reports">${t.noReportsText}</p>`;
                     return;
                 }
 
@@ -71,7 +143,7 @@
                         <div class="report-item" onclick="openPdf('${file.download_url}', '${file.name}')">
                             <div class="report-title">${file.name.replace('.pdf', '')}</div>
                             <div class="report-actions">
-                                <a href="${file.download_url}" download class="btn-download" onclick="event.stopPropagation()">⬇ Download</a>
+                                <a href="${file.download_url}" download class="btn-download" onclick="event.stopPropagation()">${t.downloadBtn}</a>
                             </div>
                         </div>
                     `;
@@ -85,13 +157,15 @@
                 }
             } catch (error) {
                 console.error('Error loading reports:', error);
-                document.getElementById('reports-list').innerHTML = '<p class="error">Error loading reports. Please try again.</p>';
+                const t = translations[currentLanguage];
+                document.getElementById('reports-list').innerHTML = `<p class="error">${t.errorText}</p>`;
             }
         }
 
         async function openPdf(url, fileName) {
             try {
-                document.getElementById('pdf-container').innerHTML = '<p class="loading">Loading PDF...</p>';
+                const t = translations[currentLanguage];
+                document.getElementById('pdf-container').innerHTML = `<p class="loading">${t.loadingText}</p>`;
                 
                 const pdf = await pdfjsLib.getDocument(url).promise;
                 currentPdf = pdf;
@@ -102,7 +176,8 @@
                 updatePageInfo();
             } catch (error) {
                 console.error('Error loading PDF:', error);
-                document.getElementById('pdf-container').innerHTML = '<p class="error">Error loading PDF. It may be too large. Try downloading instead.</p>';
+                const t = translations[currentLanguage];
+                document.getElementById('pdf-container').innerHTML = `<p class="error">${t.errorPdfText}</p>`;
             }
         }
 
@@ -150,8 +225,8 @@
             }
         }
 
-        // Load reports when page loads
-        document.addEventListener('DOMContentLoaded', loadReports);
+        // Load language preference and reports when page loads
+        document.addEventListener('DOMContentLoaded', loadLanguagePreference);
 
         // Handle responsive design
         window.addEventListener('resize', () => {
