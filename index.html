@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Reports - TRANSCEND Polska</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Weekly Reports</h1>
+            <p>TRANSCEND Polska - Archived Reports</p>
+        </header>
+
+        <main>
+            <div class="content-wrapper">
+                <!-- PDF Viewer Section -->
+                <div class="pdf-viewer-section">
+                    <div id="pdf-container">
+                        <p class="placeholder">Select a report to view it here</p>
+                    </div>
+                </div>
+
+                <!-- Reports List Section -->
+                <aside class="reports-list">
+                    <h2>Available Reports</h2>
+                    <div id="reports-list" class="reports">
+                        <p class="loading">Loading reports...</p>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 TRANSCEND Polska. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Set up PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let currentPdf = null;
+        let currentPage = 1;
+        let totalPages = 0;
+
+        async function loadReports() {
+            try {
+                // Fetch list of reports from the reports folder
+                const response = await fetch('https://api.github.com/repos/michal-czarnecki-transcend/TRANSCENDPolska.com/contents/reports');
+                const files = await response.json();
+                
+                if (!Array.isArray(files)) {
+                    document.getElementById('reports-list').innerHTML = '<p class="no-reports">No reports found yet. Check back soon!</p>';
+                    return;
+                }
+
+                const pdfFiles = files.filter(file => file.name.endsWith('.pdf')).sort((a, b) => b.name.localeCompare(a.name));
+
+                if (pdfFiles.length === 0) {
+                    document.getElementById('reports-list').innerHTML = '<p class="no-reports">No reports found yet. Check back soon!</p>';
+                    return;
+                }
+
+                let html = '';
+                pdfFiles.forEach((file, index) => {
+                    const date = file.name.replace('report-', '').replace('.pdf', '');
+                    html += `
+                        <div class="report-item" onclick="openPdf('${file.download_url}', '${file.name}')">
+                            <div class="report-title">${file.name.replace('.pdf', '')}</div>
+                            <div class="report-actions">
+                                <a href="${file.download_url}" download class="btn-download" onclick="event.stopPropagation()">⬇ Download</a>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('reports-list').innerHTML = html;
+                
+                // Auto-load the first report
+                if (pdfFiles.length > 0) {
+                    openPdf(pdfFiles[0].download_url, pdfFiles[0].name);
+                }
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                document.getElementById('reports-list').innerHTML = '<p class="error">Error loading reports. Please try again.</p>';
+            }
+        }
+
+        async function openPdf(url, fileName) {
+            try {
+                document.getElementById('pdf-container').innerHTML = '<p class="loading">Loading PDF...</p>';
+                
+                const pdf = await pdfjsLib.getDocument(url).promise;
+                currentPdf = pdf;
+                totalPages = pdf.numPages;
+                currentPage = 1;
+
+                renderPage(1);
+                updatePageInfo();
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                document.getElementById('pdf-container').innerHTML = '<p class="error">Error loading PDF. It may be too large. Try downloading instead.</p>';
+            }
+        }
+
+        async function renderPage(pageNum) {
+            if (!currentPdf) return;
+
+            try {
+                const page = await currentPdf.getPage(pageNum);
+                const scale = window.innerWidth > 1024 ? 1.5 : 1;
+                const viewport = page.getViewport({ scale });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+
+                document.getElementById('pdf-container').innerHTML = '';
+                document.getElementById('pdf-container').appendChild(canvas);
+                updatePageInfo();
+            } catch (error) {
+                console.error('Error rendering page:', error);
+            }
+        }
+
+        function updatePageInfo() {
+            // Page info could be added here if needed
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPage(currentPage);
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage(currentPage);
+            }
+        }
+
+        // Load reports when page loads
+        document.addEventListener('DOMContentLoaded', loadReports);
+
+        // Handle responsive design
+        window.addEventListener('resize', () => {
+            if (currentPdf) {
+                renderPage(currentPage);
+            }
+        });
+    </script>
+</body>
+</html>
