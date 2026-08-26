@@ -36,9 +36,9 @@ The reports will appear in reverse alphabetical order (newest first).
 ## File Structure
 
 ```
-TRANSCENDPolska.com/
-├── index.html          (Main page - already created)
-├── style.css           (Styling - already created)
+michal-czarnecki-transcend.github.io/
+├── index.html          (Main page)
+├── style.css           (Styling)
 ├── reports/            (Your PDF files go here)
 │   ├── report-2026-08-26.pdf
 │   ├── report-2026-08-19.pdf
