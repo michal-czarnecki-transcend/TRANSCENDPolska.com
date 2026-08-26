@@ -126,6 +126,7 @@ nav {
     gap: 10px;
     margin-left: auto;
     flex-shrink: 0;
+    z-index: 3;
 }
 
 .lang-btn {
