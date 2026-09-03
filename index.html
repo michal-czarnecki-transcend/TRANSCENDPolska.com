@@ -10,9 +10,14 @@
 <body>
     <!-- Navigation Bar -->
     <nav>
-        <button class="logo-btn" onclick="goHome()" title="TRANSCEND Polska">
-            <img src="logo.png" alt="TRANSCEND Polska">
-        </button>
+        <!-- Centered clickable logo (single-page behavior) -->
+        <a class="logo-link" href="#" onclick="goHome(); return false;" title="TRANSCEND Polska" aria-label="TRANSCEND Polska - Home">
+            <img
+              src="logobeztła.png"
+              alt="TRANSCEND Polska logo"
+              loading="lazy"
+              onerror="this.onerror=null; this.style.display='none'; this.parentElement.classList.add('image-fallback');">
+        </a>
         
         <div class="nav-buttons">
             <div class="nav-left">
@@ -48,9 +53,6 @@
                     <div id="videos-container" class="videos-grid">
                         <p class="loading pl-text">Ładowanie wideo...</p>
                         <p class="loading en-text" style="display:none;">Loading videos...</p>
-                    </div>
-                    <div id="videos-controls" style="text-align:center; margin-top:18px;">
-                        <button id="load-more-videos" class="nav-btn" style="display:none; min-width: 120px;">10+</button>
                     </div>
                 </div>
             </main>
@@ -174,7 +176,7 @@
                 },
                 {
                     title: 'Szczyt',
-                    description: 'Michał Czarnecki prezentuje program, w którym różni goście pozwalają mu, na odkrycie jak działa świat. Tematyka specjalistyczna, artystyczna oraz humorystyczn[...]'
+                    description: 'Michał Czarnecki prezentuje program, w którym różni goście pozwalają mu, na odkrycie jak działa świat. Tematyka specjalistyczna, artystyczna oraz humorys[...]'
                 }
             ],
             en: [
@@ -196,186 +198,6 @@
         let currentPdf = null;
         let currentPage = 1;
         let totalPages = 0;
-
-        // ===== YouTube integration =====
-        // Paste your API key here (created and restricted to your site in Google Cloud Console)
-        const YT_API_KEY = 'AIzaSyBxH1KYD22Hy45Xd-jWO18V1wuv01ewdoA';
-        const YT_CHANNEL_QUERY = 'TRANSCENDPolska'; // safe query to find the channel
-        let ytChannelId = null;
-        let ytNextPageToken = null;
-
-        // Fetch channel ID by searching for the channel name (returns first match)
-        async function fetchChannelId() {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(YT_CHANNEL_QUERY)}&maxResults=1&key=${YT_API_KEY}`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error('Failed to locate channel');
-            const data = await res.json();
-            if (data.items && data.items.length > 0) {
-                // item.id.channelId contains the channel id
-                const item = data.items[0];
-                return item.id && item.id.channelId ? item.id.channelId : (item.snippet && item.snippet.channelId ? item.snippet.channelId : null);
-            }
-            return null;
-        }
-
-        // Parse ISO 8601 duration (e.g. PT1H2M10S) into seconds
-        function parseISO8601Duration(duration) {
-            if (!duration || typeof duration !== 'string') return 0;
-            const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-            if (!match) return 0;
-            const hours = parseInt(match[1] || 0, 10);
-            const minutes = parseInt(match[2] || 0, 10);
-            const seconds = parseInt(match[3] || 0, 10);
-            return hours * 3600 + minutes * 60 + seconds;
-        }
-
-        // Decode HTML entities (e.g., &amp;, &quot;) into characters
-        function decodeHtmlEntities(str) {
-            if (str === null || str === undefined) return '';
-            const txt = document.createElement('textarea');
-            txt.innerHTML = str;
-            return txt.value;
-        }
-
-        // Normalize title: fix common malformed entity tokens and decode entities
-        function normalizeTitle(title) {
-            if (title === null || title === undefined) return '';
-            let t = String(title);
-            // fix nonstandard tokens you observed like '&quote' or '&quote;'
-            t = t.replace(/&quote;/g, '"').replace(/&quote/g, '"').replace(/&quot;/g, '"').replace(/&ldquo;|&rdquo;/g, '"');
-            // decode other entities (e.g., &amp; etc.)
-            try {
-                t = decodeHtmlEntities(t);
-            } catch (e) {
-                // fallback: keep t as-is
-            }
-            return t;
-        }
-
-        // Load videos (maxResults = 10), append to container. If pageToken is null it loads first page.
-        async function loadVideosPage(pageToken = null) {
-            const container = document.getElementById('videos-container');
-            const controls = document.getElementById('load-more-videos');
-            try {
-                if (!ytChannelId) {
-                    ytChannelId = await fetchChannelId();
-                    if (!ytChannelId) throw new Error('Channel not found');
-                }
-
-                let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${ytChannelId}&order=date&type=video&maxResults=10&key=${YT_API_KEY}`;
-                if (pageToken) url += `&pageToken=${pageToken}`;
-
-                const res = await fetch(url);
-                if (!res.ok) throw new Error('Error fetching videos');
-                const data = await res.json();
-
-                // Clear placeholder on first load
-                if (!pageToken) container.innerHTML = '';
-
-                // Collect video IDs from this page
-                const videoItems = (data.items || []).filter(item => item && item.id && item.id.videoId);
-                const ids = videoItems.map(i => i.id.videoId).join(',');
-
-                let durationsMap = {};
-                if (ids) {
-                    const vUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${ids}&key=${YT_API_KEY}`;
-                    const vRes = await fetch(vUrl);
-                    if (vRes.ok) {
-                        const vData = await vRes.json();
-                        (vData.items || []).forEach(v => {
-                            durationsMap[v.id] = v.contentDetails && v.contentDetails.duration ? v.contentDetails.duration : null;
-                        });
-                    }
-                }
-
-                // Filter out shorts (duration <= 180s). If duration unknown, keep the video as a fallback.
-                const nonShorts = [];
-                videoItems.forEach(item => {
-                    const vid = item.id.videoId;
-                    const dur = durationsMap[vid];
-                    const seconds = dur ? parseISO8601Duration(dur) : null;
-                    // now exclude anything 180s or shorter (YouTube shorts can be up to 180s)
-                    if (seconds === null || seconds > 180) {
-                        nonShorts.push(item);
-                    }
-                });
-
-                // If this page had no non-shorts and there is a nextPageToken, try loading the next page automatically
-                if (nonShorts.length === 0 && data.nextPageToken) {
-                    // continue to next page to try find non-shorts
-                    ytNextPageToken = data.nextPageToken;
-                    // recursive call to fetch next page
-                    await loadVideosPage(data.nextPageToken);
-                    return;
-                }
-
-                // Helper: escape HTML in titles
-                function escapeHtml(text) {
-                    if (text === null || text === undefined) return '';
-                    return String(text)
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;')
-                        .replace(/>/g, '&gt;')
-                        .replace(/\"/g, '&quot;')
-                        .replace(/'/g, '&#39;');
-                }
-
-                // Render non-short videos
-                nonShorts.forEach(item => {
-                    const videoId = item.id.videoId;
-                    const rawTitle = item.snippet.title || '';
-                    const title = normalizeTitle(rawTitle);
-
-                    const card = document.createElement('div');
-                    card.className = 'video-card';
-                    card.innerHTML = `
-                        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
-                          <iframe src="https://www.youtube.com/embed/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe>
-                        </div>
-                        <div class="video-title">${escapeHtml(title)}</div>
-                    `;
-                    container.appendChild(card);
-                });
-
-                // Update nextPageToken and show/hide load more button
-                ytNextPageToken = data.nextPageToken || null;
-                if (ytNextPageToken) {
-                    controls.style.display = 'inline-block';
-                } else {
-                    controls.style.display = 'none';
-                }
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = `<p class="error pl-text">Błąd ładowania wideo</p><p class="error en-text" style="display:none;">Error loading videos</p>`;
-                document.getElementById('load-more-videos').style.display = 'none';
-            }
-        }
-
-        // Public function called by goHome() to (re)load first page
-        async function loadYouTubeVideos() {
-            // reset paging
-            ytChannelId = null;
-            ytNextPageToken = null;
-            document.getElementById('load-more-videos').style.display = 'none';
-            const container = document.getElementById('videos-container');
-            container.innerHTML = `<p class="loading pl-text">Ładowanie wideo...</p><p class="loading en-text" style="display:none;">Loading videos...</p>`;
-            await loadVideosPage(null);
-        }
-
-        // Load more handler
-        document.addEventListener('DOMContentLoaded', () => {
-            const btn = document.getElementById('load-more-videos');
-            if (btn) {
-                btn.addEventListener('click', async () => {
-                    if (!ytNextPageToken) return;
-                    btn.disabled = true;
-                    btn.textContent = 'Ładowanie...';
-                    await loadVideosPage(ytNextPageToken);
-                    btn.disabled = false;
-                    btn.textContent = '10+';
-                });
-            }
-        });
 
         // ===== LANGUAGE SWITCHING =====
         function setLanguage(lang) {
@@ -447,6 +269,43 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             loadYouTubeVideos();
             window.scrollTo(0, 0);
+        }
+
+        // ===== YOUTUBE VIDEOS =====
+        async function loadYouTubeVideos() {
+            const container = document.getElementById('videos-container');
+            container.innerHTML = '';
+            
+            try {
+                // YouTube Channel: @TRANSCENDPolska
+                // Using YouTube Data API - requires API key
+                // For now, showing placeholder with manual video embedding capability
+                
+                const videoIds = [
+                    // Add your YouTube video IDs here
+                    // Format: 'dQw4w9WgXcQ'
+                ];
+
+                if (videoIds.length === 0) {
+                    container.innerHTML = `<p class="placeholder pl-text" style="grid-column: 1/-1;">Wideo będą dostępne wkrótce</p>
+                                          <p class="placeholder en-text" style="grid-column: 1/-1; display:none;">Videos will be available soon</p>`;
+                    return;
+                }
+
+                videoIds.forEach(videoId => {
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    card.innerHTML = `
+                        <iframe class="video-iframe" src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+                        <div class="video-title">Video</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                container.innerHTML = `<p class="error pl-text" style="grid-column: 1/-1;">Błąd ładowania wideo</p>
+                                      <p class="error en-text" style="grid-column: 1/-1; display:none;">Error loading videos</p>`;
+            }
         }
 
         // ===== PROGRAMS RENDERING =====
