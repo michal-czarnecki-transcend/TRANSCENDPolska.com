@@ -229,6 +229,29 @@
             return hours * 3600 + minutes * 60 + seconds;
         }
 
+        // Decode HTML entities (e.g., &amp;, &quot;) into characters
+        function decodeHtmlEntities(str) {
+            if (str === null || str === undefined) return '';
+            const txt = document.createElement('textarea');
+            txt.innerHTML = str;
+            return txt.value;
+        }
+
+        // Normalize title: fix common malformed entity tokens and decode entities
+        function normalizeTitle(title) {
+            if (title === null || title === undefined) return '';
+            let t = String(title);
+            // fix nonstandard tokens you observed like '&quote' or '&quote;'
+            t = t.replace(/&quote;/g, '"').replace(/&quote/g, '"').replace(/&quot;/g, '"').replace(/&ldquo;|&rdquo;/g, '"');
+            // decode other entities (e.g., &amp; etc.)
+            try {
+                t = decodeHtmlEntities(t);
+            } catch (e) {
+                // fallback: keep t as-is
+            }
+            return t;
+        }
+
         // Load videos (maxResults = 10), append to container. If pageToken is null it loads first page.
         async function loadVideosPage(pageToken = null) {
             const container = document.getElementById('videos-container');
@@ -265,13 +288,14 @@
                     }
                 }
 
-                // Filter out shorts (duration < 60s). If duration unknown, keep the video as a fallback.
+                // Filter out shorts (duration <= 180s). If duration unknown, keep the video as a fallback.
                 const nonShorts = [];
                 videoItems.forEach(item => {
                     const vid = item.id.videoId;
                     const dur = durationsMap[vid];
                     const seconds = dur ? parseISO8601Duration(dur) : null;
-                    if (seconds === null || seconds >= 60) {
+                    // now exclude anything 180s or shorter (YouTube shorts can be up to 180s)
+                    if (seconds === null || seconds > 180) {
                         nonShorts.push(item);
                     }
                 });
@@ -285,10 +309,22 @@
                     return;
                 }
 
+                // Helper: escape HTML in titles
+                function escapeHtml(text) {
+                    if (text === null || text === undefined) return '';
+                    return String(text)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/\"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                }
+
                 // Render non-short videos
                 nonShorts.forEach(item => {
                     const videoId = item.id.videoId;
-                    const title = item.snippet.title || '';
+                    const rawTitle = item.snippet.title || '';
+                    const title = normalizeTitle(rawTitle);
 
                     const card = document.createElement('div');
                     card.className = 'video-card';
@@ -313,17 +349,6 @@
                 container.innerHTML = `<p class="error pl-text">Błąd ładowania wideo</p><p class="error en-text" style="display:none;">Error loading videos</p>`;
                 document.getElementById('load-more-videos').style.display = 'none';
             }
-        }
-
-        // Helper: escape HTML in titles
-        function escapeHtml(text) {
-            if (text === null || text === undefined) return '';
-            return String(text)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
         }
 
         // Public function called by goHome() to (re)load first page
