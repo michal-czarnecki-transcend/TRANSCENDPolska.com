@@ -46,9 +46,10 @@ nav {
 }
 
 /* Centered logo: position absolute inside the fixed nav so it visually sits in the middle of the bar */
-.logo-btn {
-    width: 100px;
-    height: 100px;
+.logo-btn,
+.logo-link {
+    width: 140px;
+    height: 140px;
     background: transparent; /* keep background transparent so colored logo looks correct */
     border: none;
     cursor: pointer;
@@ -62,17 +63,19 @@ nav {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    top: 8px;
+    top: 6px;
     z-index: 1100;
 }
 
-.logo-btn:hover {
-    transform: translateX(-50%) scale(1.05);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.25);
+.logo-btn:hover,
+.logo-link:hover {
+    transform: translateX(-50%) scale(1.03);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.18);
 }
 
 /* Make the logo image scale nicely and remain fully visible */
-.logo-btn img {
+.logo-btn img,
+.logo-link img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
@@ -482,6 +485,17 @@ footer {
         width: 100%;
         justify-content: center;
     }
+
+    /* Reduce logo size on tablet */
+    .logo-btn,
+    .logo-link {
+        width: 100px;
+        height: 100px;
+        position: relative;
+        left: auto;
+        transform: none;
+        top: auto;
+    }
 }
 
 @media (max-width: 768px) {
@@ -542,7 +556,8 @@ footer {
         padding: 10px;
     }
 
-    .logo-btn {
+    .logo-btn,
+    .logo-link {
         width: 60px;
         height: 60px;
         position: relative;
