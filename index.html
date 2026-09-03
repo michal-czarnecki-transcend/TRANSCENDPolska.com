@@ -10,14 +10,9 @@
 <body>
     <!-- Navigation Bar -->
     <nav>
-        <!-- Centered clickable logo (single-page behavior) -->
-        <a class="logo-link" href="#" onclick="goHome(); return false;" title="TRANSCEND Polska" aria-label="TRANSCEND Polska - Home">
-            <img
-              src="logobeztła.png"
-              alt="TRANSCEND Polska logo"
-              loading="lazy"
-              onerror="this.onerror=null; this.style.display='none'; this.parentElement.classList.add('image-fallback');">
-        </a>
+        <button class="logo-btn" onclick="goHome()" title="TRANSCEND Polska">
+            <img src="logo.png" alt="TRANSCEND Polska">
+        </button>
         
         <div class="nav-buttons">
             <div class="nav-left">
